@@ -1,28 +1,30 @@
 <template>
   <div class="page">
-    <div class="scanner-card">
-      <h1>🛡️ AntiVirus Scanner</h1>
-
-      <div class="section">
-        <label class="upload-label" @click="triggerFileInput">
-          📁 Перетащите файл или нажмите здесь
-          <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-        </label>
-      </div>
-
-      <button class="scan-button" @click="startUpload" :disabled="!uploadedFile">
-        Загрузить файл
-      </button>
-
-      <div class="progress" v-if="isLoading">⏳ Проверка файла...</div>
-
-      <!-- Отображение загруженного файла -->
-      <div class="file-preview" v-if="uploadedFile && !isLoading">
-        <div class="file-info">
-          📄 <strong>{{ uploadedFile.name }}</strong>
-          <span class="size">({{ formatSize(uploadedFile.size) }})</span>
+    <div class="content">
+      <div class="scanner-card">
+        <h1>🛡️ AntiVirus Scanner</h1>
+        <div class="section">
+          <label class="upload-label" @click="triggerFileInput">
+            📁 Перетащите файл или нажмите здесь
+            <input
+                type="file"
+                ref="fileInput"
+                style="display: none"
+                @change="handleFileChange"
+            />
+          </label>
         </div>
-        <button class="remove-btn" @click="removeFile">❌ Удалить</button>
+        <button class="scan-button" @click="startUpload" :disabled="!uploadedFile">
+          Загрузить файл
+        </button>
+        <div class="progress" v-if="isLoading">⏳ Проверка файла...</div>
+        <div class="file-preview" v-if="uploadedFile && !isLoading">
+          <div class="file-info">
+            📄 <strong>{{ uploadedFile.name }}</strong>
+            <span class="size">({{ formatSize(uploadedFile.size) }})</span>
+          </div>
+          <button class="remove-btn" @click="removeFile">❌ Удалить</button>
+        </div>
       </div>
     </div>
   </div>
@@ -30,13 +32,15 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+
 onMounted(() => {
   document.body.style.overflow = "hidden";
-})
+});
 
 const fileInput = ref(null);
 const uploadedFile = ref(null);
 const isLoading = ref(false);
+
 function triggerFileInput() {
   fileInput.value.click();
 }
@@ -49,10 +53,10 @@ function handleFileChange() {
 function startUpload() {
   if (!uploadedFile.value) return;
   isLoading.value = true;
-  }
+}
 function removeFile() {
   uploadedFile.value = null;
-  fileInput.value.value = ""; // очистить input
+  fileInput.value.value = "";
 }
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} Б`;
@@ -60,23 +64,44 @@ function formatSize(bytes) {
   return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
 }
 </script>
-<style scoped>
-.page {
-  min-height: 100vh;
-  width: 100vw;
-  padding: 0;
+<style>
+html,
+body {
   margin: 0;
-  background: #f0f4f8;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background: white;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+.page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+.content {
+  height: 100vh;
+  width: 1200px;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow-x: hidden;
-  overflow-y: hidden;
 }
 
 .scanner-card {
-  background: #ffffff;
   width: 400px;
+  background: navajowhite;
   padding: 40px 30px;
   border-radius: 12px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -167,4 +192,3 @@ function formatSize(bytes) {
   text-decoration: underline;
 }
 </style>
-
