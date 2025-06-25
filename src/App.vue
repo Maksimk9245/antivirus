@@ -1,117 +1,169 @@
 <template>
-  <button @click="openDropzone" class="upload-btn">Upload</button>
-    <div
-      class="dropzone-content"
-      :class="{ dragover:isDragOver }"
-      @click="triggerFileInput"
-      @dragover.prevent="onDragOver"
-      @dragleave="onDragLeave"
-      @drop.prevent="onDrop"
-    >Сюда файл
-    <p>
-      Перетянуть файл<br />
-      <span>Кликни, что бы выбрать с диска</span>
-    </p>
+  <div class="page">
+    <div class="scanner-card">
+      <h1>🛡️ AntiVirus Scanner</h1>
+
+      <div class="section">
+        <label class="upload-label" @click="triggerFileInput">
+          📁 Перетащите файл или нажмите здесь
+          <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
+        </label>
+      </div>
+
+      <button class="scan-button" @click="startUpload" :disabled="!uploadedFile">
+        Загрузить файл
+      </button>
+
+      <div class="progress" v-if="isLoading">⏳ Проверка файла...</div>
+
+      <!-- Отображение загруженного файла -->
+      <div class="file-preview" v-if="uploadedFile && !isLoading">
+        <div class="file-info">
+          📄 <strong>{{ uploadedFile.name }}</strong>
+          <span class="size">({{ formatSize(uploadedFile.size) }})</span>
+        </div>
+        <button class="remove-btn" @click="removeFile">❌ Удалить</button>
+      </div>
     </div>
-  <input type="file"
-         ref="fileInput"
-         style="display:none"
-         @change="onFileChange"/>
-  <div v-if="uploadedFile" class="uploaded-info"
-  >Загруженно:<strong>{{uploadedFile.name}}</strong>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const isDragOver = ref(false)
-const uploadedFile = ref(null)
-const fileInput = ref(null)
-
+import { ref, onMounted } from "vue";
+onMounted(() => {
+  document.body.style.overflow = "hidden";
+})
+const fileInput = ref(null);
+const uploadedFile = ref(null);
+const isLoading = ref(false);
 function triggerFileInput() {
-  fileInput.value?.click()
+  fileInput.value.click();
 }
-
-function onFileChange(e) {
-  const file = e.target.files[0]
+function handleFileChange() {
+  const file = fileInput.value.files[0];
   if (file) {
-    uploadedFile.value = file
-    console.log('Выбран файл:', file)
+    uploadedFile.value = file;
   }
 }
-
-function onDragOver() {
-  isDragOver.value = true
-}
-
-function onDragLeave() {
-  isDragOver.value = false
-}
-
-function onDrop(e) {
-  const file = e.dataTransfer.files[0]
-  if (file) {
-    uploadedFile.value = file
-    console.log('Файл перетащен:', file)
+function startUpload() {
+  if (!uploadedFile.value) return;
+  isLoading.value = true;
   }
-  isDragOver.value = false
+function removeFile() {
+  uploadedFile.value = null;
+  fileInput.value.value = ""; // очистить input
+}
+function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} Б`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
 }
 </script>
-
 <style scoped>
-.upload-btn {
-  background-color: #4caf50;
+.page {
+  min-height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+  background: #f0f4f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.scanner-card {
+  background: #ffffff;
+  width: 400px;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.scanner-card h1 {
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #2c3e50;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.upload-label {
+  display: block;
+  border: 2px dashed #bbb;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.upload-label:hover {
+  background: #f0fff0;
+  border-color: #4caf50;
+}
+
+.scan-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4c6ef5;
   color: white;
-  padding: 10px 20px;
   font-size: 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 20px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
 }
-.upload-btn:hover {
-  background-color: #45a049;
+.scan-button:disabled {
+  background-color: #aab5f9;
+  cursor: not-allowed;
 }
-
-.dropzone-content {
-  border: 2px dashed #aaa;
-  padding: 40px;
-  text-align: center;
-  border-radius: 10px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: 0.2s ease;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  color: #333;
+.scan-button:hover:enabled {
+  background-color: #3b5bdb;
 }
 
-.dropzone-content.dragover {
-  border-color: #4caf50;
-  background-color: #f0fff0;
-}
-
-.drop-text {
-  font-size: 16px;
-  line-height: 1.6;
-}
-.drop-text span {
-  color: #777;
-  font-size: 14px;
-}
-
-.uploaded-info {
+.progress {
   margin-top: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.file-preview {
+  margin-top: 20px;
+  background: #eef3ff;
+  border-left: 4px solid #4c6ef5;
+  border-radius: 6px;
+  padding: 12px 15px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #2c3e50;
+}
+.file-info {
+  display: flex;
+  flex-direction: column;
+}
+.size {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #e53935;
   font-size: 16px;
-  padding: 12px;
-  background-color: #f9f9f9;
-  border-left: 4px solid #4caf50;
-  border-radius: 5px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  cursor: pointer;
+}
+.remove-btn:hover {
+  text-decoration: underline;
 }
 </style>
+
