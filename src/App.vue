@@ -33,6 +33,7 @@ import { ref, onMounted } from "vue";
 onMounted(() => {
   document.body.style.overflow = "hidden";
 })
+
 const fileInput = ref(null);
 const uploadedFile = ref(null);
 const isLoading = ref(false);
